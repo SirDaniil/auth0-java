@@ -1,7 +1,9 @@
 plugins {
     id 'java'
     id 'jacoco'
-    id 'com.auth0.gradle.oss-library.java'
+    id 'java-library'
+    id 'maven-publish'
+//    id 'com.auth0.gradle.oss-library.java'
 }
 
 repositories {
@@ -9,9 +11,10 @@ repositories {
 }
 
 group = 'com.auth0'
+version = '20230313'
 logger.lifecycle("Using version ${version} for ${name} group $group")
 
-oss {
+/*oss {
     name 'auth0'
     repository 'auth0-java'
     organization 'auth0'
@@ -29,7 +32,7 @@ oss {
             email = 'luciano.balmaceda@auth0.com'
         }
     }
-}
+}*/
 
 jacocoTestReport {
     reports {
@@ -87,5 +90,26 @@ dependencies {
 task exportVersion()  {
   doLast {
     new File(rootDir, "version.txt").text = "$version"
+  }
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      from components.java
+    }
+  }
+
+  repositories {
+    maven {
+      url "https://gitlab.orbisfn.com/api/v4/projects/7/packages/maven"
+      credentials(HttpHeaderCredentials) {
+        name = "Private-Token"
+        value = project.findProperty("GitLabToken")
+      }
+      authentication {
+        header(HttpHeaderAuthentication)
+      }
+    }
   }
 }
