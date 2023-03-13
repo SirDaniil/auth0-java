@@ -54,7 +54,7 @@ public class DefaultHttpClient implements Auth0HttpClient {
     }
 
     private DefaultHttpClient(Builder builder) {
-        okhttp3.OkHttpClient.Builder clientBuilder = new okhttp3.OkHttpClient.Builder();
+        okhttp3.OkHttpClient.Builder clientBuilder = (builder.client != null) ? builder.client.newBuilder() : new okhttp3.OkHttpClient.Builder();
         clientBuilder.readTimeout(sanitizeTimeout(builder.readTimeout), TimeUnit.SECONDS);
         clientBuilder.connectTimeout(sanitizeTimeout(builder.connectTimeout), TimeUnit.SECONDS);
         clientBuilder.addInterceptor(getLoggingInterceptor(builder.loggingOptions));
@@ -266,10 +266,16 @@ public class DefaultHttpClient implements Auth0HttpClient {
         private int connectTimeout = 10;
         private ProxyOptions proxyOptions;
         private LoggingOptions loggingOptions;
+        private OkHttpClient client;
         private boolean telemetryEnabled = true;
         private int maxRetries = 3;
         private int maxRequests = 64;
         private int maxRequestsPerHost = 5;
+
+        public Builder withOkHttpClient(OkHttpClient client) {
+            this.client = client;
+            return this;
+        }
 
         /**
          * Sets the value of the read timeout, in seconds. Defaults to ten seconds. A value of zero results in no read timeout.
